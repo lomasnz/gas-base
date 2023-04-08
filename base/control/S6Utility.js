@@ -19,6 +19,12 @@ class S6Utility {
     return "1.1";
   }
 
+  static getScriptProperty(name) {
+    let res = S6Utility.trim(PropertiesService.getScriptProperties().getProperty(name));
+    S6Context.info("Script property [", name, "] exists[", res != EMPTY , "]");
+    return res;
+  }
+
   static simple2WayHash(string) {
     // Use a simple mathematical formula to create a unique hash value for the email
     return string.length * 3 + string.charCodeAt(0);
@@ -116,8 +122,6 @@ class S6Utility {
   }
 
   static initAddOn(event) {
-    // Pass the hard coded ID of the Master Spreadsheet that boot straps the Add-on 
-    //var res = doCreateManageFolderCards("1-A07sUD02DLtyyw7Lt4NFsW66xade_BiinIa-Q6BJ8c");
 
     var masterURL = S6Utility.getMasterSpreadSheetUrl();
     var locale = S6Utility.getUserLocale();
@@ -128,13 +132,10 @@ class S6Utility {
     }
 
     if (S6Utility.trim(masterURL) == "") {
-      masterURL = "https://docs.google.com/spreadsheets/d/1fVWACDuta9KMSVUaQxosTUswX4zLdPn8WP6hOHwXubU/edit";
+      masterURL = S6Utility.getScriptProperty("master.properties.spreadsheet");// "https://docs.google.com/spreadsheets/d/1fVWACDuta9KMSVUaQxosTUswX4zLdPn8WP6hOHwXubU/edit";
       userProperties.setProperty(USER_PROPERTY_MASTER_URL, masterURL);
-      //S6Context.log("Setting default Master url. Using:", masterURL);
     }
-    else {
-      //S6Context.log("Master from properties. Using:", masterURL);
-    }
+ 
   }
   static getMasterSpreadSheetUrl() {
     return PropertiesService.getUserProperties().getProperty(USER_PROPERTY_MASTER_URL);
