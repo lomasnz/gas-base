@@ -65,6 +65,8 @@ var _ = LodashGS.load();
 //const ICON_DRIVE_URL = "img_DriveOutline";
 //"img_DriveOutline.html";//"https://drive.google.com/uc?export=view&id=1O7zhJapVPwI808qp1kfUkFedkOF1icjF";
 
+const ICON_APP_SETTINGS_URL = "https://github.com/google/material-design-icons/blob/master/png/action/settings_applications/materialiconsoutlined/48dp/2x/outline_settings_applications_black_48dp.png?raw=true";
+const ICON_QUOTE_URL = "https://github.com/google/material-design-icons/blob/master/png/editor/format_quote/materialiconsoutlined/48dp/2x/outline_format_quote_black_48dp.png?raw=true";
 const ICON_DOUBLE_ARROW_LEFT = "https://github.com/lomasnz/public-resources/blob/main/material-design-icons/keyboard_double_arrow_left.png?raw=true";
 const ICON_GOOGLE_TEAMDRIVE_URL = "https://github.com/lomasnz/public-resources/blob/main/google-workspace-icons/Google%20Drive%20Outline.png";
 const ICON_POST_ADD_URL = "https://github.com/google/material-design-icons/blob/master/png/editor/post_add/materialiconsoutlined/48dp/2x/outline_post_add_black_48dp.png?raw=true";
@@ -142,8 +144,6 @@ const ICON_GOOGLE_SPREADSHEET_URL = "https://github.com/lomasnz/public-resources
 const ICON_GOOGLE_FORM_URL = "https://github.com/lomasnz/public-resources/blob/main/google-workspace-icons/form.png?raw=true";
 const ICON_DRIVE_FOLDER = "https://github.com/lomasnz/public-resources/blob/main/google-workspace-icons/Google-Drive-Folder.webp?raw=true";
 const ICON_ATLASSIAN_URL = "https://www.google.com/s2/favicons?domain_url=atlassian.com";
-
-const DOC_ICON_URL_PREFIX = "https://drive-thirdparty.googleusercontent.com/16/type/";
 
 const PRIMARY_COLOUR = "#61166d";
 const SECONDARY_COLOUR = "#4185f4";
