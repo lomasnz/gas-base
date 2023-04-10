@@ -1,3 +1,5 @@
+
+
 const CACHE_NAME = "newCache";
 const CACHE_PRIORITY = Object.freeze({
   HIGH: Symbol("High"),

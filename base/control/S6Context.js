@@ -1,4 +1,32 @@
+const S6Event = {};
+const S6EventUser = {};
 
+const S6EventSettings = {
+  LogTraceDefault: false,
+  LogDebugDefault: false,
+  LogInfoDefault: false,
+
+  TimeWarningDefault: 20000,
+  TimeErrorDefault: 25000,
+
+  LogDebugOn: { LogDebug: true },
+  LogDebugOff: { LogDebug: false },
+  LogTraceOn: { LogTrace: true },
+  LogTraceOff: { LogTrace: false },
+  LogInfoOn: { LogInfo: true },
+  LogInfoOff: { LogInfo: false },
+
+  TimeWarningTest0: { TimeWarningThreshhold: 0 },
+  TimeWarningAt5Seconds: { TimeWarningThreshhold: 5000 },
+  TimeWarningAt10Seconds: { TimeWarningThreshhold: 10000 },
+  TimeWarningAt20Seconds: { TimeWarningThreshhold: 20000 },
+
+  TimeErrorTest0: { TimeErrorThreshhold: 0 },
+  TimeErrorAt10Seconds: { TimeErrorThreshhold: 10000 },
+  TimeErrorAt20Seconds: { TimeErrorThreshhold: 20000 },
+  TimeErrorAt25Seconds: { TimeErrorThreshhold: 25000 }
+
+}
 
 class S6Context {
 
@@ -18,7 +46,7 @@ class S6Context {
   }
 
   static newFromName(name) {
-   //S6UIController.initS6Event();
+    //S6UIController.initS6Event();
     var res = new S6Context(S6Event[name], name, "#PRIVATE");
     if (!res.build.LogDebug) {
       S6Context.debug = S6Context._noOp;
@@ -34,6 +62,50 @@ class S6Context {
     S6Context._instance = res;
     S6Context.debug("S6Context[", res.build, "]");
     return res;
+  }
+  /**
+   * For recording a record in the S6Event  for each action_ build_ pairing, along with configuration (...args)
+   */
+  static addEvent(actionFn, viewBuildFn, ...args) {
+    S6Event[actionFn.name] = {
+      ActionFn: actionFn,
+      ActionName: actionFn.name,
+      ViewBuildFn: viewBuildFn,
+      LogInfo: S6EventSettings.LogInfoDefault,
+      LogDebug: S6EventSettings.LogDebugDefault,
+      LogTrace: S6EventSettings.LogTraceDefault,
+      TimeWarningThreshhold: S6EventSettings.TimeWarningDefault,
+      TimeErrorThreshhold: S6EventSettings.TimeErrorDefault
+    };
+    if (S6EventUser[Session.getActiveUser().getEmail()]) {
+      var override = S6EventUser[Session.getActiveUser().getEmail()];
+      for (let a in override) {
+        S6Event[actionFn.name][a] = override[a];
+      }
+    }
+    else {
+      if (args.length > 0) {
+        for (let a in args) {
+          for (let j in args[a]) {
+            S6Event[actionFn.name][j] = args[a][j];
+          }
+        }
+      }
+    }
+  }
+  static addUser(userEmail, ...args) {
+    S6EventUser[userEmail] = {
+      LogInfo: S6EventSettings.LogInfoDefault,
+      LogDebug: S6EventSettings.LogDebugDefault,
+      LogTrace: S6EventSettings.LogTraceDefault,
+      TimeWarningThreshhold: S6EventSettings.TimeWarningDefault,
+      TimeErrorThreshhold: S6EventSettings.TimeErrorDefault
+    };
+    for (let a in args) {
+      for (let j in args[a]) {
+        S6EventUser[userEmail][j] = args[a][j];
+      }
+    }
   }
 
   executeBuild(eventParameter) {

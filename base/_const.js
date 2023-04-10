@@ -65,6 +65,8 @@ var _ = LodashGS.load();
 //const ICON_DRIVE_URL = "img_DriveOutline";
 //"img_DriveOutline.html";//"https://drive.google.com/uc?export=view&id=1O7zhJapVPwI808qp1kfUkFedkOF1icjF";
 
+const ICON_GOOGLE_TEAMDRIVE_URL = "https://github.com/lomasnz/public-resources/blob/main/google-workspace-icons/Google%20Drive%20Outline.png";
+const ICON_POST_ADD_URL = "https://github.com/google/material-design-icons/blob/master/png/editor/post_add/materialiconsoutlined/48dp/2x/outline_post_add_black_48dp.png?raw=true";
 const ICON_SAD_URL = "https://raw.githubusercontent.com/google/material-design-icons/master/png/social/sentiment_dissatisfied/materialiconsoutlined/48dp/2x/outline_sentiment_dissatisfied_black_48dp.png";
 const ICON_OPEN_AI_URL = "https://static-00.iconduck.com/assets.00/openai-icon-505x512-pr6amibw.png";
 const ICON_S6_URL = "https://lh3.googleusercontent.com/-BA_sFlZaD40/YtjskUmaleI/AAAAAAAAAqg/2RvA2UkhG6ElCiTKVMZ0fySOKXmjQSFwQCNcBGAsYHQ/s400/32%2Bx%2B32%2Bhopferly-02.png";
@@ -84,8 +86,9 @@ const ICON_CHANGE = "https://github.com/google/material-design-icons/blob/master
 const ICON_DONE_URL = "https://github.com/google/material-design-icons/blob/master/png/action/check_circle_outline/materialiconsoutlined/48dp/2x/outline_check_circle_outline_black_48dp.png?raw=true";
 const ICON_DRIVE_URL = "https://ssl.gstatic.com/images/branding/product/2x/drive_2020q4_48dp.png";
 const ICON_DRIVE_OUTLINE_URL = "https://github.com/lomasnz/public-resources/blob/main/google-workspace-icons/Google%20Drive%20Outline.png?raw=true";
-const ICON_MOVE_DOWN_URL = "https://github.com/google/material-design-icons/blob/master/png/editor/move_down/materialiconsoutlined/48dp/1x/outline_move_down_black_48dp.png?raw=true";
-const ICON_GEAR_GREEN_URL = "https://github.com/lomasnz/public-resources/blob/main/material-design-icons/switch_access_shortcut.png?raw=true";
+const ICON_GEAR_GREEN_URL = "https://github.com/lomasnz/public-resources/blob/main/misc-icons/green_settings.png?raw=true";
+const ICON_MOVE_DOWN_URL = "https://github.com/googlepu/material-design-icons/blob/master/png/editor/move_down/materialiconsoutlined/48dp/1x/outline_move_down_black_48dp.png?raw=true";
+
 const ICON_RIGHT_ARROW_URL = "https://github.com/lomasnz/public-resources/blob/main/material-design-icons/arrow_forward.png?raw=true";
 const ICON_OPEN_IN_NEW_WINDOW_URL = "https://github.com/lomasnz/public-resources/blob/main/material-design-icons/open_in_new.png?raw=true";
 const ICON_REPLY_ALL_URL = "https://github.com/lomasnz/public-resources/blob/main/material-design-icons/reply_all.png?raw=true";
@@ -132,14 +135,12 @@ const ICON_GOOGLE_SPREADSHEET_BLACK_URL = "https://github.com/lomasnz/public-res
 const ICON_GOOGLE_FORM_BLACK_URL = "https://raw.githubusercontent.com/lomasnz/public-resources/main/google-workspace-icons/Google-Drive-Folder.webp";
 
 // COLOURED 
-const ICON_GOOGLE_DOC_URL = "https://github.com/lomasnz/public-resources/blob/main/google-workspace-icons/Google-Docs.webp?raw=true";
-const ICON_GOOGLE_PRESENTATION_URL = "https://github.com/lomasnz/public-resources/blob/main/google-workspace-icons/Google-Slides.webp?raw=true";
-const ICON_GOOGLE_SPREADSHEET_URL = "https://github.com/lomasnz/public-resources/blob/main/google-workspace-icons/Google-Sheets.webp?raw=true";
+const ICON_GOOGLE_DOC_URL = "https://github.com/lomasnz/public-resources/blob/main/google-workspace-icons/document.png?raw=true";
+const ICON_GOOGLE_PRESENTATION_URL = "https://github.com/lomasnz/public-resources/blob/main/google-workspace-icons/presentation.png?raw=true";
+const ICON_GOOGLE_SPREADSHEET_URL = "https://github.com/lomasnz/public-resources/blob/main/google-workspace-icons/spreadsheet.png?raw=true";
 const ICON_GOOGLE_FORM_URL = "https://github.com/lomasnz/public-resources/blob/main/google-workspace-icons/form.png?raw=true";
 const ICON_DRIVE_FOLDER = "https://github.com/lomasnz/public-resources/blob/main/google-workspace-icons/Google-Drive-Folder.webp?raw=true";
-
-
-
+const ICON_ATLASSIAN_URL = "https://www.google.com/s2/favicons?domain_url=atlassian.com";
 
 const PRIMARY_COLOUR = "#61166d";
 const SECONDARY_COLOUR = "#4185f4";
@@ -155,26 +156,10 @@ const GOOGLE_FILE_TYPE_DOC_NAME = "Doc";
 const GOOGLE_FILE_TYPE_SLIDE_NAME = "Slide Deck";
 const GOOGLE_FILE_TYPE_FORM_NAME = "Form";
 
-// // DARK / BLACK
-// const ICON_GOOGLE_DOC_BLACK_URL = "https://drive.google.com/uc?export=view&id=1taToYXEwh4snw4_gzOgyC3ztDyx_rQ-Z";
-// const ICON_GOOGLE_PRESENTATION_BLACK_URL = "https://drive.google.com/uc?export=view&id=1jG4MmvhO9mbYOQAORY8P-LRCy9CMlOJn";
-// const ICON_GOOGLE_SPREADSHEET_BLACK_URL = "https://drive.google.com/uc?export=view&id=1FFC6juQby794j45sjCZ2XmwHx5_sr4TE";
-// const ICON_GOOGLE_FORM_BLACK_URL = "https://drive.google.com/uc?export=view&id=1P5HVlgRDLlTFe3mL4mIesjI2i4sgIaNQ";
-
-// // COLOURED 
-// const ICON_GOOGLE_DOC_URL = "https://drive.google.com/uc?export=view&id=1f72NAIUHCgk6s4dshtK4Sgy6XCNVbvh2";
-// const ICON_GOOGLE_PRESENTATION_URL = "https://drive.google.com/uc?export=view&id=13k5os5_w1pA7EfW7VATGZmWZbhayCSu4";
-// const ICON_GOOGLE_SPREADSHEET_URL = "https://drive.google.com/uc?export=view&id=1F1QIbSoaPCGKMa3o3wOXM6L6-u4xvGzq";
-// const ICON_GOOGLE_FORM_URL = "https://drive.google.com/uc?export=view&id=1ixK_wI1Q2yGI4ObdYxVH5ltiqjaJs8o-";
-// const ICON_DRIVE_FOLDER = "https://drive.google.com/uc?export=view&id=1V1wfvoR34HzwYNehQOzwG9MWoMt6RkN4";
-const ICON_ATLASSIAN_URL = "https://www.google.com/s2/favicons?domain_url=atlassian.com";
-
 const FOLDER_SEPERATOR = "\\";
-const APPS_MAP = new Map();
 
 const FOLDER_TYPE_ROOT = "RootFolder";
 const FOLDER_TYPE_SUB = "SubFolder";
-
 
 const USER_PROPERTY_MASTER_URL = "MASTER_URL";
 const USER_PROPERTY_LOCALE = "LOCALE";
@@ -182,8 +167,6 @@ const USER_PROPERTY_HIDE_HELP = "HIDE_HELP";
 const USER_PROPERTY_HOME = "HOME";
 
 const MILLISECONDS_IN_A_MINUTE = 60000;
-
-const DOC_ICON_URL_PREFIX = "https://drive-thirdparty.googleusercontent.com/16/type/";
 
 var DOC_MIMETYPE_NAME = {
   "application/vnd.google-apps.audio": "Audio file",
