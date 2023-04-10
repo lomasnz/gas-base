@@ -13,12 +13,12 @@ class S6Context {
     Object.freeze(this);
   }
 
-  static new(s6actionEventFn = actionEventDefault) {
-    return S6Context.newFromName(s6actionEventFn.name);
+  static new(s6actionEventFnName = actionEventDefault.name) {
+    return S6Context.newFromName(s6actionEventFnName);
   }
 
   static newFromName(name) {
-    S6UIController.initS6Event();
+   //S6UIController.initS6Event();
     var res = new S6Context(S6Event[name], name, "#PRIVATE");
     if (!res.build.LogDebug) {
       S6Context.debug = S6Context._noOp;
