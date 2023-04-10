@@ -7,6 +7,7 @@ const ICON_NEW_FOLDER = makeIcon(ICON_NEW_FOLDER_URL);
 const ICON_SETTINGS = makeIcon(ICON_SETTINGS_URL);
 const ICON_DONE = makeIcon(ICON_DONE_URL);
 
+const DOC_ICON_URL_PREFIX = "https://drive-thirdparty.googleusercontent.com/16/type/";
 
 function makeIcon(iconUrl) {
   return CardService.newIconImage().setIconUrl(iconUrl);
