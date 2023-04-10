@@ -52,7 +52,7 @@ var _ = LodashGS.load();
 // const ICON_TUNE_URL = "https://drive.google.com/uc?export=view&id=1x5PbjuqOoNZFep1s2Jzs15W573KD_9x_";
 // const ICON_SWITCH_ACCESS_URL = "https://drive.google.com/uc?export=view&id=1wD4UWU_id6evNcYDd974sU7dWfsplbrb";
 // const ICON_GOOGLE_TEAMDRIVE_URL = "https://drive.google.com/uc?export=view&id=1XIEF47xXpgkARLfiobeRl781R0ddUcHr";
-// const ICON_DOUBLE_ARROW_LEFT = "https://drive.google.com/uc?export=view&id=1SLQf4L6FT3BV6EtvCAO0KuY8fCMiM1D0";
+// const ICON_DOUBLE_ARROW_LEFT = "https://github.com/lomasnz/public-resources/blob/main/material-design-icons/keyboard_double_arrow_left.png?raw=true";
 // const ICON_DOUBLE_ARROW_LEFT_PURPLE = "https://drive.google.com/uc?export=view&id=1ftM41qmo7pd9iHE7mkOhKDcU1BIzMcVj";
 // const ICON_POST_ADD_URL = "https://github.com/google/material-design-icons/blob/master/png/editor/post_add/materialiconsoutlined/48dp/2x/outline_post_add_black_48dp.png?raw=true";
 // const ICON_ARROW_LEFT_CIRCLE_URL = "https://github.com/google/material-design-icons/blob/master/png/action/arrow_circle_left/materialiconsoutlined/48dp/2x/outline_arrow_circle_left_black_48dp.png?raw=true";
@@ -65,6 +65,7 @@ var _ = LodashGS.load();
 //const ICON_DRIVE_URL = "img_DriveOutline";
 //"img_DriveOutline.html";//"https://drive.google.com/uc?export=view&id=1O7zhJapVPwI808qp1kfUkFedkOF1icjF";
 
+const ICON_DOUBLE_ARROW_LEFT = "https://github.com/lomasnz/public-resources/blob/main/material-design-icons/keyboard_double_arrow_left.png?raw=true";
 const ICON_GOOGLE_TEAMDRIVE_URL = "https://github.com/lomasnz/public-resources/blob/main/google-workspace-icons/Google%20Drive%20Outline.png";
 const ICON_POST_ADD_URL = "https://github.com/google/material-design-icons/blob/master/png/editor/post_add/materialiconsoutlined/48dp/2x/outline_post_add_black_48dp.png?raw=true";
 const ICON_SAD_URL = "https://raw.githubusercontent.com/google/material-design-icons/master/png/social/sentiment_dissatisfied/materialiconsoutlined/48dp/2x/outline_sentiment_dissatisfied_black_48dp.png";
@@ -87,7 +88,7 @@ const ICON_DONE_URL = "https://github.com/google/material-design-icons/blob/mast
 const ICON_DRIVE_URL = "https://ssl.gstatic.com/images/branding/product/2x/drive_2020q4_48dp.png";
 const ICON_DRIVE_OUTLINE_URL = "https://github.com/lomasnz/public-resources/blob/main/google-workspace-icons/Google%20Drive%20Outline.png?raw=true";
 const ICON_GEAR_GREEN_URL = "https://github.com/lomasnz/public-resources/blob/main/misc-icons/green_settings.png?raw=true";
-const ICON_MOVE_DOWN_URL = "https://github.com/googlepu/material-design-icons/blob/master/png/editor/move_down/materialiconsoutlined/48dp/1x/outline_move_down_black_48dp.png?raw=true";
+const ICON_MOVE_DOWN_URL = "https://github.com/google/material-design-icons/blob/master/png/editor/move_down/materialiconsoutlined/48dp/2x/outline_move_down_black_48dp.png?raw=true";
 
 const ICON_RIGHT_ARROW_URL = "https://github.com/lomasnz/public-resources/blob/main/material-design-icons/arrow_forward.png?raw=true";
 const ICON_OPEN_IN_NEW_WINDOW_URL = "https://github.com/lomasnz/public-resources/blob/main/material-design-icons/open_in_new.png?raw=true";
@@ -141,6 +142,8 @@ const ICON_GOOGLE_SPREADSHEET_URL = "https://github.com/lomasnz/public-resources
 const ICON_GOOGLE_FORM_URL = "https://github.com/lomasnz/public-resources/blob/main/google-workspace-icons/form.png?raw=true";
 const ICON_DRIVE_FOLDER = "https://github.com/lomasnz/public-resources/blob/main/google-workspace-icons/Google-Drive-Folder.webp?raw=true";
 const ICON_ATLASSIAN_URL = "https://www.google.com/s2/favicons?domain_url=atlassian.com";
+
+const DOC_ICON_URL_PREFIX = "https://drive-thirdparty.googleusercontent.com/16/type/";
 
 const PRIMARY_COLOUR = "#61166d";
 const SECONDARY_COLOUR = "#4185f4";
