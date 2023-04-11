@@ -107,6 +107,19 @@ class S6DriveApp {
     }
     return res;
   }
+  static getFileByUrl(url) {
+    let res;
+    var id = S6Utility.getIdFromUrl(url);
+    if (id) {
+      try {
+       res = DriveApp.getFileById(id);
+      }
+      catch (e) {
+        // do op
+      }
+    }
+    return res;
+  }
   static getFolderDescription(id) {
     var res = S6DriveApp._getFromCache(id, "desc");
     if (!res) {
