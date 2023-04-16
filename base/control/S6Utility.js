@@ -23,6 +23,8 @@ class S6Utility {
   static getScriptProperty(name) {
     let res = S6Utility.trim(PropertiesService.getScriptProperties().getProperty(name));
     S6Context.info("Script property [", name, "] exists[", res != EMPTY , "]");
+    // var e = new Error();
+    // S6Context.error(e.stack,e.message);
     return res;
   }
 
