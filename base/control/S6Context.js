@@ -116,7 +116,7 @@ class S6Context {
       var userCacheCountBefore = S6Cache.userCacheCount();
       var globalCacheCountBefore = S6Cache.globalCacheCount();
       var eventName = this.email + " in " + param.getHostAppName() + " -> " + this.build.ActionName + "(event) -> " + this.build.ViewBuildFn.name + "(param)";
-      S6Context.debug(`Execute ${this.build.ViewBuildFn.name}`);
+      S6Context.info(`Execute ${this.build.ViewBuildFn.name} for ${ADD_ON_RELEASE}`);
       S6Context.time(eventName);
       res = this.build.ViewBuildFn(param);
       var userCacheCountAfter = S6Cache.userCacheCount();
