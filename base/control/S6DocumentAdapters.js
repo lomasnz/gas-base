@@ -658,7 +658,8 @@ class S6DocsAdapater extends S6DocumentAdapater {
     for (let r = start; r !== end; r += step) {
       const nextElement = rangeElements[r].getElement();
       S6Context.debugFn("_findSelectedElementLocation 1 e", DOCUMENT_ELEMENT_TYPES[nextElement.getType()]);
-      if (nextElement.getType() == DocumentApp.ElementType.BODY_SECTION) {
+      if (nextElement.getType() == DocumentApp.ElementType.BODY_SECTION ||
+               nextElement.getType() == DocumentApp.ElementType.TABLE_CELL) {
         // If a BODY_SECTION element is found, set the cursor position and calculate the child index
         var pos = doc.newPosition(nextElement, 0);
         doc.setCursor(pos);
@@ -702,6 +703,7 @@ class S6DocsAdapater extends S6DocumentAdapater {
     var res = true;
 
     try {
+  
       var { childIndex, body } = this._findSelectedElementLocation(doc);
       S6Context.debug("applyBoilerplate at:", childIndex);
 
@@ -749,6 +751,7 @@ class S6DocsAdapater extends S6DocumentAdapater {
       S6Context.debug("skip _loopElements, no parent");
     }
   }
+
   _mergeElements(element, base, childIndex = 0) {
 
     var type = element.getType();
@@ -1120,7 +1123,7 @@ class S6DocsAdapater extends S6DocumentAdapater {
       if (newRange) {
         var next = S6Utility.trim(newRange.getElement().asText().getText());
         console.log("NEXT", next);
-        this._splitOutPropos(res, next);
+        this._splitOutProps(res, next);
         // if (next != EMPTY && next.indexOf("#") < 0) {
         //   this._splitOutPropos(res[PROPERTIES.AUTOMATIC], next);
         //   //res[PROPOERTIES.AUTOMATIC][next] = next.substring(1, next.length - 1);
@@ -1134,7 +1137,7 @@ class S6DocsAdapater extends S6DocumentAdapater {
     }
   }
 
-  _splitOutPropos(props, text) {
+  _splitOutProps(props, text) {
     var split = text.split("{");
     for (var i = 0; i < split.length; i++) {
       var end = split[i].indexOf("}");
