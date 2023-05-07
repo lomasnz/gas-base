@@ -39,6 +39,8 @@ class S6Context {
     this.email = Session.getActiveUser().getEmail();
     this.timers = {};
     Object.freeze(this);
+    S6Context.instance = this;
+    Object.freeze(S6Context.instance);
   }
 
   static new(s6actionEventFnName = actionEventDefault.name) {
