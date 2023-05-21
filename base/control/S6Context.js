@@ -46,10 +46,14 @@ class S6Context {
   static new(s6actionEventFnName = actionEventDefault.name) {
     return S6Context.newFromName(s6actionEventFnName);
   }
+  static rehidrate(build,actionEvent) {
+    return S6Context.newFromName(actionEvent,build);
+    //return new S6Context(build,actionEvent,"#PRIVATE");
+  }
 
-  static newFromName(name) {
+  static newFromName(name,build = S6Event[name]) {
     //S6UIController.initS6Event();
-    var res = new S6Context(S6Event[name], name, "#PRIVATE");
+    var res = new S6Context(build, name, "#PRIVATE");
     if (!res.build.LogDebug) {
       S6Context.debug = S6Context._noOp;
       S6Context.debugFn = S6Context._noOp;

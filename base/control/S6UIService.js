@@ -787,12 +787,16 @@ class S6UIService {
     return res;
   }
 
-  static createCreateButton(title, functionName, param) {
+  static createCreateButton(title, functionName = EMPTY, param) {
+    if (S6Utility.trim(functionName) == EMPTY) {
+      functionName = "S6UIService_actionGoBack";
+      param = {};
+    }
     var res = S6UIService.createTextButton(title, PRIMARY_COLOUR, functionName, param);
     res.setTextButtonStyle(CardService.TextButtonStyle.FILLED); // required for fixed fotter 
     return res;
   }
-  static createCancelButton(title, functionName, param) {
+  static createCancelButton(title, functionName = EMPTY, param) {
     if (S6Utility.trim(functionName) == EMPTY) {
       functionName = "S6UIService_actionGoBack";
       param = {};
@@ -864,7 +868,7 @@ class S6UIService {
     return res;
   }
 
-static _createSelectionHarvestProjectsID(domain, title, hint, value) {
+  static _createSelectionHarvestProjectsID(domain, title, hint, value) {
     var res = CardService.newSelectionInput()
     if (S6Utility.trim(title) != EMPTY) {
       res.setTitle(title);
@@ -874,7 +878,7 @@ static _createSelectionHarvestProjectsID(domain, title, hint, value) {
     }
     try {
       S6Context.debug("_createSelectionHarvestProjectsID(", domain, ")");
-      var projects = HarvestAPIService.listProjectsForClientDomainName(domain,true);
+      var projects = HarvestAPIService.listProjectsForClientDomainName(domain, true);
       if (projects && projects.length > 0) {
         for (let i = 0; i < projects.length; i++) {
           var text = projects[i++] + "";

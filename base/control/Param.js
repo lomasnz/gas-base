@@ -242,6 +242,10 @@ class Param {
     this._parameters = param;
   }
 
+  getTimeZone() {
+    return this.event.commonEventObject.timeZone.id;
+  }
+
   /**  document **/
   setDocumentId(id) {
     this.recordaction(this.setDocumentId, "id", id);
