@@ -20,6 +20,10 @@ class S6Utility {
     return "1.1";
   }
 
+  static escapeRegExp(string = EMPTY) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+  }
+
   static getScriptProperty(name) {
     let res = S6Utility.trim(PropertiesService.getScriptProperties().getProperty(name));
     S6Context.info("Script property [", name, "] exists[", res != EMPTY, "]");

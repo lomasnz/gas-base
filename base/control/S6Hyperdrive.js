@@ -1,34 +1,38 @@
 /**
  * S6Batch is a class to execute a Google Apps Script function asynchronously using Google Cloud Pub/Sub.
  */
-class S6Batch {
+class S6Hyperdrive {
   /**
    * This method publishes a message to the Google Cloud Pub/Sub topic that will trigger the Google Apps Script function.
    * @param {string} functionName - The name of the Google Apps Script function to execute.
    * @param {Object} job - The data that will be passed to the Google Apps Script function.
    */
-  static batch(functionName, job) {
+  static engage(functionName, job) {
     S6Validate.mandatory("functionName", functionName);
     const userAccessToken = ScriptApp.getOAuthToken();
-    const secret = S6Batch._makeToken();
+    const secret = S6Hyperdrive._makeToken();
+    const serviceAccountResourceId = S6Utility.getScriptProperty("service.account.resourceid");
 
-    const webappUrl = S6Batch._getScriptUrl();
+    const webappUrl = S6Hyperdrive._getScriptUrl();
     const data = {
       functionName: functionName,
-      job: job
+      job: job,
+      s6ContextBuild: S6Context.instance.build,
+      s6ContextActioneEvent: S6Context.instance.actionEvent
     };
     const message = {
       webappUrl: webappUrl,
       data: data, // Replace with your data
       token: secret, // Unique token for authentication
-      userAccessToken: userAccessToken
+      userAccessToken: userAccessToken,
+      serviceAccountResourceId
     };
     console.log(message);
 
     const encodedMessage = Utilities.base64EncodeWebSafe(JSON.stringify(message));
     const pubSubUrl = "https://pubsub.googleapis.com/v1/projects/s6-g-tools/topics/batch.job:publish";
 
-    const serviceAccount = S6Batch._getPubSubServiceAccount();
+    const serviceAccount = S6Hyperdrive._getPubSubServiceAccount();
     const token = serviceAccount.getAccessToken();
 
     const options = {
@@ -88,13 +92,19 @@ class S6Batch {
    * @private
    */
   static _getScriptUrl() {
-    var res = ScriptApp.getService().getUrl();
-    const deployments = S6Batch._getLatestDeployments();
+    let res = EMPTY;
+    res = S6Cache.userCacheGetString("script.url");
+    if (!res || res == EMPTY) {
+      res = ScriptApp.getService().getUrl();
+      const deployments = S6Hyperdrive._getLatestDeployments();
 
-    if (!res.includes(`/exec?id=${deployments.deploymentId}`)) {
-      var domain = S6Utility.getDomainName();
-      res = `https://script.google.com/a/macros/${domain}/s/${deployments.deploymentId}/dev`;
+      if (!res.includes(`/exec?id=${deployments.deploymentId}`)) {
+        var domain = S6Utility.getDomainName();
+        res = `https://script.google.com/a/macros/${domain}/s/${deployments.deploymentId}/dev`;
+      }
+      S6Cache.userCachePutString("script.url",res);
     }
+    S6Context.info(`WebApp url: ${res}`);
     return res;
   }
 
@@ -132,31 +142,42 @@ class S6Batch {
    * @return {object} The service account secret as a JSON object.
    */
   static _getSecretForServiceAccount() {
-    var res = EMPTY;
-
-    // resource ID of the secret to retrieve
-    const resourceId = 'projects/538345115646/secrets/ServiceAccount';
-
-    // Version of the secret to retrieve
-    const version = 'latest';
-    const url = `https://secretmanager.googleapis.com/v1/${resourceId}/versions/${version}:access`;
-    console.log(url);
-
-    const accessToken = ScriptApp.getOAuthToken();
-    const headers = {
-      Authorization: `Bearer ${accessToken}`,
-    };
-    const options = {
-      method: "GET",
-      headers: headers,
-    };
-
-    const response = UrlFetchApp.fetch(url, options);
-    const base64Secret = JSON.parse(response.getContentText()).payload.data;
-    res = JSON.parse(Utilities.newBlob(Utilities.base64Decode(base64Secret)).getDataAsString());
-
-    // Do something with the secret
+    const KEY = "service.account.keyfile.json"
+    var res = S6Cache.userCacheGetJson(KEY);
+    if (!res) {
+      S6Context.info("Cache miss:",KEY);
+      var keyFileJson = S6Utility.getScriptProperty(KEY);
+      var res = JSON.parse(keyFileJson);
+      S6Cache.userCachePutJson(KEY,res);
+    }
+    else {
+      S6Context.info("Cache hit:",KEY);
+    }
     return res;
+    // var res = EMPTY;
+
+    // // resource ID of the secret to retrieve
+    // const resourceId = S6Utility.getScriptProperty("service.account.resourceid");
+
+    // // Version of the secret to retrieve
+    // const url = `https://secretmanager.googleapis.com/v1/${resourceId}:access`;
+    // console.log(url);
+
+    // const accessToken = ScriptApp.getOAuthToken();
+    // const headers = {
+    //   Authorization: `Bearer ${accessToken}`,
+    // };
+    // const options = {
+    //   method: "GET",
+    //   headers: headers,
+    // };
+
+    // const response = UrlFetchApp.fetch(url, options);
+    // const base64Secret = JSON.parse(response.getContentText()).payload.data;
+    // res = JSON.parse(Utilities.newBlob(Utilities.base64Decode(base64Secret)).getDataAsString());
+
+    // // Do something with the secret
+    // return res;
   }
 
   /**
@@ -165,7 +186,7 @@ class S6Batch {
    * @throws {Error} If authentication fails.
    */
   static _getPubSubServiceAccount() {
-    const privateKey = S6Batch._getSecretForServiceAccount();
+    const privateKey = S6Hyperdrive._getSecretForServiceAccount();
 
     const serviceAccount = OAuth2.createService('GooglePubSub')
       .setTokenUrl('https://oauth2.googleapis.com/token')
@@ -194,13 +215,19 @@ function doPost(e) {
   // You can store the sent tokens in a time-limited cache (e.g., using CacheService)
   // and check if the received token exists in the cache
 
-  if (S6Batch._consumeToken(token)) {
+  if (S6Hyperdrive._consumeToken(token)) {
     const data = requestData.data;
-    console.log(data);
+    const s6ContextBuild = data.s6ContextBuild;
+    const s6ContextActioneEvent = data.s6ContextActioneEvent;
+    
+    S6Context.rehidrate(s6ContextBuild, s6ContextActioneEvent);
+    S6Utility.initAddOn();
+
+    S6Context.debug(data);
     const job = data.job;
     const functionName = data.functionName;
     this[functionName](job);
-    console.log("WebApp", functionName, 'Request processed successfully')
+    S6Context.info("WebApp", functionName, 'Request processed successfully')
     return ContentService.createTextOutput('Request processed successfully');
   }
   else {
