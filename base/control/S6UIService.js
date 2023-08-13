@@ -15,8 +15,8 @@ const DATA_TYPE_PRIPIDRIVE_DEALS_IDS = "pipedrive.deals.ids";
 const DATA_TYPE_HARVEST_PROJECTS_IDS = "harvest.projects.ids";
 const DATA_TYPE_STAFF = "staff";
 const DATA_TYPE_INPUT_LIST = "inputList";
-const DATA_TYPE_SLECTOR = "selector";
-const DATA_TYPE_SLECTED = "selected";
+const DATA_TYPE_SELECTOR = "selector";
+const DATA_TYPE_SELECTED = "selected";
 const DATA_TYPE_LINK = "link";
 const DATA_TYPE_SWITCH = "switch"
 const DATA_TYPE_NUMBER = "number"
@@ -425,6 +425,10 @@ class S6UIService {
     if (refreshCache) {
       res = S6UIService._createDecoratedText("Refresh", "Clears the cache and refereshes this page with any new data.");
       var actionName = "S6UIService_refreshCacheAndPage";
+      var s6ContextBuild = S6Context.instance.build;
+      var s6ContextActioneEvent = S6Context.instance.actionEvent;
+      param.setValue("s6ContextBuild", JSON.stringify(s6ContextBuild));
+      param.setValue("s6ContextActioneEvent", JSON.stringify(s6ContextActioneEvent));
     }
     else {
       res = S6UIService._createDecoratedText("Refresh", "Referesh this page with any new data.");
@@ -433,7 +437,7 @@ class S6UIService {
     res.setWrapText(true);
     res.setEndIcon(makeIcon(ICON_REFRESH_URL));
 
-    res.setOnClickAction(S6UIService.createAction(actionName, param));
+    res.setOnClickAction(S6UIService.createAction(actionName, param.toJSON()));
     return res;
   }
 
@@ -596,17 +600,17 @@ class S6UIService {
     var res = CardService.newSelectionInput();
 
     var title = prop[PROPERTIES.ATTR.TITLE];
-    var value = prop[PROPERTIES.ATTR.VALUE];
+    var selectorList = prop[PROPERTIES.ATTR.SELECTOR_LIST];
     var propName = prop[PROPERTIES.ATTR.PROP_NAME];
 
-    S6Context.debugFn("createPropertySelector:values", value);
+    S6Context.debugFn("createPropertySelector:values", selectorList);
 
     res.setTitle(`🔽 ${title}`);
     res.setFieldName(propName);
     res.setType(CardService.SelectionInputType.DROPDOWN);
-    if (value.length > 0) {
-      for (var v = 0; v < value.length; v++) {
-        res.addItem(value[v++], value[v], v == 1);
+    if (selectorList.length > 0) {
+      for (var v = 0; v < selectorList.length; v++) {
+        res.addItem(selectorList[v++], selectorList[v], v == 1);
       }
     }
     else {
@@ -636,11 +640,13 @@ class S6UIService {
 
   static getSeletecedHelper(field, seed) {
     var res = EMPTY;
-    var selector = field.selector;
-    var values = field.selectorValues;
-    for (var next in values[seed]) {
-      if (selector == next.toString()) {
-        res = values[seed][next];
+    var selector = field[PROPERTIES.ATTR.SELECTOR];
+    var map = JSON.parse(field[PROPERTIES.ATTR.SELECTOR_MAP]);
+    console.log("getSeletecedHelper1", selector, seed, map);
+    for (var next in map[seed]) {
+      console.log("getSeletecedHelper2", next.toString());
+      if (selector.trim() == next.toString().trim()) {
+        res = map[seed][next];
         break;
       }
     }
@@ -1411,8 +1417,12 @@ function S6UIService_refreshPage(event) {
 function S6UIService_refreshCacheAndPage(event) {
   var param = new Param(event);
   var eventName = param.getValue(PARAM.EVENT_NAME);
+  var s6ContextBuild = JSON.parse(param.getValue("s6ContextBuild"));
+  var s6ContextActioneEvent = JSON.parse(param.getValue("s6ContextActioneEvent"));
+  var newContext = S6Context.rehidrate(s6ContextBuild,s6ContextActioneEvent);
+  S6Utility.initAddOn();
   S6Context.debug("S6UIService_refreshCacheAndPage", eventName);
-  var newContext = S6Context.newFromName(eventName);
+  // newContext = S6Context.newFromName(eventName);
 
   S6Cache.userCacheClear();
   return CardService.newNavigation().updateCard(newContext.executeBuild(event));

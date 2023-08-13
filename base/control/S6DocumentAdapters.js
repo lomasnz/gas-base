@@ -582,8 +582,7 @@ class S6DocsAdapater extends S6DocumentAdapater {
           var { markup, nextNumberItem } = this._getMarkDown(element, numberItem);
           numberItem = nextNumberItem;
           markupPrefix = markup;
-          res = res + markupPrefix + this._textToMarkdown(element.editAsText(), element.getText(), rangeElement);
-
+          res = res + markupPrefix + this._textToMarkdown(element.editAsText(), element.getText(), rangeElement) + "\n";
         }
 
       }
@@ -764,19 +763,28 @@ class S6DocsAdapater extends S6DocumentAdapater {
 
       // Attempt to get the selected range
       var range = doc.getSelection();
-      if (!range) throw new Error("No selection range found");
+      let element;
+      var partial = false;
+      if (!range) {
+        console.log("No Range found. Getting cursor");
+        var pos = doc.getCursor();
+        element = pos.getElement();
+      }
+      else if (range) {
+        console.log("Range found. Getting the first range element...");
 
-      console.log("Range found. Getting the first range element...");
+        // Get the first range element
+        var rangeElements = range.getRangeElements();
+        var rangeElement = rangeElements[rangeElements.length - 1];
+        if (!rangeElement) throw new Error("No range element found");
 
-      // Get the first range element
-      var rangeElements = range.getRangeElements();
-      var rangeElement = rangeElements[rangeElements.length - 1];
-      if (!rangeElement) throw new Error("No range element found");
+        console.log("Range element found. Getting the selected element...");
 
-      console.log("Range element found. Getting the selected element...");
+        // Get the selected element
+        element = rangeElement.getElement();
+        partial = rangeElement.isPartial()
+      }
 
-      // Get the selected element
-      element = rangeElement.getElement();
 
       console.log("Selected element found. Checking if the element is a table cell...");
 
@@ -799,7 +807,7 @@ class S6DocsAdapater extends S6DocumentAdapater {
         console.log("Element is not a table cell. Location is the body.");
         location = body; // If not a table cell, location is the body
         childIndex = body.getChildIndex(element);
-        console.log("Element index in the body: " + childIndex, rangeElement.isPartial());
+        console.log("Element index in the body: " + childIndex, partial);
 
         // Check if the element has a next sibling
         if (parent.getNumChildren() > childIndex + 1) {
@@ -815,7 +823,7 @@ class S6DocsAdapater extends S6DocumentAdapater {
     }
 
     // Return an object containing the child index and the location
-    console.log("Returning child index and location...");
+    console.log("Returning child index and location...", childIndex, location);
     return { childIndex, location };
   }
 
@@ -888,11 +896,11 @@ class S6DocsAdapater extends S6DocumentAdapater {
 
     try {
 
-      var { childIndex, body } = this._findSelectedElementLocation(doc);
+      var { location, childIndex } = this._findSelectedElementLocation2(doc);
       S6Context.debug("applyBoilerplate at:", childIndex);
 
       console.log("Merge in Body");
-      this._loopElements(bolierplateDoc.getBody(), body, childIndex);
+      this._loopElements(bolierplateDoc.getBody(), location, childIndex);
 
       S6Context.debug("applyBoilerplate headersAndFooters:", headersAndFooters);
       if (headersAndFooters) {
@@ -937,53 +945,56 @@ class S6DocsAdapater extends S6DocumentAdapater {
   }
 
   _mergeElements(element, base, childIndex = 0) {
-
     var type = element.getType();
-    console.log("Merge type:", DOCUMENT_ELEMENT_TYPES[type]);
-    if (type == DocumentApp.ElementType.PARAGRAPH) {
-      base.insertParagraph(childIndex, element);
-      //base.appendParagraph(element);
-    }
-    else if (type == DocumentApp.ElementType.TABLE) {
-      base.insertTable(childIndex, element)
-      //base.appendTable(element);
-    }
-    else if (type == DocumentApp.ElementType.LIST_ITEM) {
-      var glyph = element.getGlyphType();// the glyph sometimes get dropped, so capture it and then apply it again after 
-      var li = base.insertListItem(childIndex, element);
-      li.setGlyphType(glyph);
-    }
-    else if (type == DocumentApp.ElementType.PAGE_BREAK) {
-      base.insertPageBreak(childIndex);
-      //base.appendPageBreak();
-    }
-    else if (type == DocumentApp.ElementType.HORIZONTAL_RULE) {
-      base.insertHorizontalRule(childIndex);
-      //base.appendHorizontalRule();
-    }
-    else if (type == DocumentApp.ElementType.INLINE_IMAGE) {
-      // var guid = S6Utility.makePseudoGuid(12);
-      // this._replacedImages[guid] = element;
-      // base.insertParagraph(childIndex, guid);
-      base.insertImage(childIndex, element);
-      // base.appendImage(element);
-    }
-    else if (type == DocumentApp.ElementType.INLINE_DRAWING) {
-      //base.appendImage(element);
-    }
-    // else if (type == DocumentApp.ElementType.FOOTNOTE) {
-    //   base.appendFootnote(element);
-    // }
-    else if (type == DocumentApp.ElementType.FOOTER_SECTION) {
-      var f = element.asFooterSection();
-      this._loopElements(f, base, childIndex)
-    }
+    if (base) {
+      console.log("Merge type:", DOCUMENT_ELEMENT_TYPES[type]);
+      if (type == DocumentApp.ElementType.PARAGRAPH) {
+        base.insertParagraph(childIndex, element);
+        //base.appendParagraph(element);
+      }
+      else if (type == DocumentApp.ElementType.TABLE) {
+        base.insertTable(childIndex, element)
+        //base.appendTable(element);
+      }
+      else if (type == DocumentApp.ElementType.LIST_ITEM) {
+        var glyph = element.getGlyphType();// the glyph sometimes get dropped, so capture it and then apply it again after 
+        var li = base.insertListItem(childIndex, element);
+        li.setGlyphType(glyph);
+      }
+      else if (type == DocumentApp.ElementType.PAGE_BREAK) {
+        base.insertPageBreak(childIndex);
+        //base.appendPageBreak();
+      }
+      else if (type == DocumentApp.ElementType.HORIZONTAL_RULE) {
+        base.insertHorizontalRule(childIndex);
+        //base.appendHorizontalRule();
+      }
+      else if (type == DocumentApp.ElementType.INLINE_IMAGE) {
+        // var guid = S6Utility.makePseudoGuid(12);
+        // this._replacedImages[guid] = element;
+        // base.insertParagraph(childIndex, guid);
+        base.insertImage(childIndex, element);
+        // base.appendImage(element);
+      }
+      else if (type == DocumentApp.ElementType.INLINE_DRAWING) {
+        //base.appendImage(element);
+      }
+      // else if (type == DocumentApp.ElementType.FOOTNOTE) {
+      //   base.appendFootnote(element);
+      // }
+      else if (type == DocumentApp.ElementType.FOOTER_SECTION) {
+        var f = element.asFooterSection();
+        this._loopElements(f, base, childIndex)
+      }
 
-    else if (type == DocumentApp.ElementType.HEADER_SECTION) {
-      var h = element.asHeaderSection();
-      this._loopElements(h, base, childIndex)
+      else if (type == DocumentApp.ElementType.HEADER_SECTION) {
+        var h = element.asHeaderSection();
+        this._loopElements(h, base, childIndex)
+      }
     }
-    else throw new Error('Unknown element type: ' + type);
+    else {
+      S6Context.error("_mergeElements, no base", childIndex, type)
+    }
   }
 
   replaceImage(text, image) {
@@ -1317,14 +1328,6 @@ class S6DocsAdapater extends S6DocumentAdapater {
         var next = S6Utility.trim(newRange.getElement().asText().getText());
         console.log("NEXT", next);
         this._splitOutProps(res, next);
-        // if (next != EMPTY && next.indexOf("#") < 0) {
-        //   this._splitOutPropos(res[PROPERTIES.AUTOMATIC], next);
-        //   //res[PROPOERTIES.AUTOMATIC][next] = next.substring(1, next.length - 1);
-        // }
-        // else {
-        //   this._splitOutPropos(res[PROPERTIES.STANDARD], next);
-        //   //res[PROPOERTIES.STANDARD][next] = next.substring(next.indexOf("{") + 1, next.length - 1);
-        // }
         this._nextAutomaticProperty(res, body, newRange);
       }
     }
@@ -1336,13 +1339,23 @@ class S6DocsAdapater extends S6DocumentAdapater {
       var end = split[i].indexOf("}");
       if (end > -1) {
         var field = split[i].substring(0, end);
+        var { title, value } = this._extractTitleAndValue(field);
         if (field.indexOf("#") > 0) {
-          props[PROPERTIES.STANDARD][`{${field}}`] = field;
+          props[PROPERTIES.STANDARD][`{${title}}`] = { value: value, field: field, title: title };
         }
         else
-          props[PROPERTIES.AUTOMATIC][`{${field}}`] = field;
+          props[PROPERTIES.AUTOMATIC][`{${title}}`] = { value: value, field: field, title: title };
       }
     }
+  }
+  _extractTitleAndValue(str) {
+    const index = str.indexOf(':');
+    if (index === -1) {
+      return { title: str, value: str };
+    }
+    const title = str.substring(0, index);
+    const value = str.substring(index + 1);
+    return { title, value };
   }
 
   _deleteAndInsert(e, thisText, start = 0, end = 0, isPartial = false, color, link = EMPTY) {
@@ -1458,193 +1471,4 @@ class S6SheetAdapater extends S6DocumentAdapater {
   }
 }
 
-class PropertyApplyFactory {
-
-  constructor(docAdapter) {
-    this._docAdapter = docAdapter;
-  }
-
-  apply(title, value, filedname, type, color, carriageReturn) {
-    throw "Implement method";
-  }
-
-  static actionType(event) {
-    return S6Utility.trim(event.formInputs["InsertType"].toString());
-  }
-
-  static create(event, docAdapter) {
-    var res;
-
-    var type = PropertyApplyFactory.actionType(event);// S6Utility.trim(event.formInputs["InsertType"].toString());
-    console.log("PropertyApplyFactory(", type, ")");
-
-    switch (type) {
-      case PROP_ACTION_INSERT_VALUE:
-        res = new PropertyAppFactory_INSERT_VALUE(docAdapter);
-        break;
-      case PROP_ACTION_INSERT_TITLE_VALUE:
-        res = new PropertyAppFactory_INSERT_TITLE_VALUE(docAdapter);
-        break;
-      case PROP_ACTION_INSERT_FIELD:
-        res = new PropertyAppFactory_INSERT_FIELD(docAdapter);
-        break;
-      case PROP_ACTION_INSERT_TITLE_FIELD:
-        res = new PropertyAppFactory_INSERT_TITLE_FIELD(docAdapter);
-        break;
-      case PROP_ACTION_REPLACE_VALUE:
-        res = new PropertyAppFactory_REPLACE_VALUE(docAdapter);
-        break;
-      case PROP_ACTION_REPLACE_TITLE_VALUE:
-        res = new PropertyAppFactory_REPLACE_TITLE_VALUE(docAdapter);
-        break;
-      default:
-        res = S6UIService.createNotification("Unknwon action type:" + type);
-        break;
-    }
-    console.log("PropertyApplyFactory(", res, ")");
-    return res;
-
-  }
-}
-
-class PropertyAppFactory_INSERT_VALUE extends PropertyApplyFactory {
-  apply(title, value, filedname, type, color, carriageReturn = false) {
-    var res;
-    value = value + EMPTY;
-    const LF = carriageReturn ? "\n" : EMPTY;
-    switch (type) {
-      case (APPLY.IMAGE):
-        let mimeType = EMPTY;
-        try {
-          var file = DriveApp.getFileById(S6Utility.getIdFromUrl(value));
-          var image = file.getBlob();
-          mimeType = DOC_MIMETYPE_NAME[file.getMimeType()];
-          // var fetch = UrlFetchApp.fetch(value);
-          // var image = fetch.getBlob();
-          S6Context.debug("PropertyAppFactory_INSERT_VALUE::image")
-          if (carriageReturn) {
-            this._docAdapter.insert(`\n`);
-          }
-          res = this._docAdapter.insertImage(image);
-        }
-        catch (err) {
-          S6Context.error(mimeType, value);
-          S6Context.error(err.stack);
-          S6Context.error(err);
-
-          res = this._docAdapter.insert(`#ERROR inserting ${title} image. ${err}${LF}. File is a ${mimeType}. Warning, .webp file types will fail.`);
-        }
-        break;
-      case (APPLY.TEXT):
-
-        res = this._docAdapter.insert(`${value}${LF}`);
-        break;
-      case (APPLY.LINK):
-        var split = value.split("|");
-        var newValue = split[0];
-        var link = split[1];
-        S6Context.debug("apply link:", filedname, newValue, link);
-        res = this._docAdapter.insert(`${newValue}${LF}`, null, link);
-        break;
-    }
-    return res;
-  }
-}
-class PropertyAppFactory_INSERT_TITLE_VALUE extends PropertyApplyFactory {
-  apply(title, value, filedname, type, color, carriageReturn = false, link = EMPTY) {
-    var res;
-    value = value + EMPTY;
-    const LF = carriageReturn ? "\n" : EMPTY;
-    switch (type) {
-      case (APPLY.IMAGE):
-        var file = DriveApp.getFileById(S6Utility.getIdFromUrl(value));
-        var image = file.getBlob();
-
-        if (carriageReturn) {
-          this._docAdapter.insert(`\n`);
-        }
-        res = this._docAdapter.insertImage(image);
-        this._docAdapter.insert(`${title}: `);
-        break;
-      case (APPLY.TEXT):
-
-        res = this._docAdapter.insert(`${title}: ${value}${LF}`);
-        break;
-      case (APPLY.LINK):
-        var split = value.split("|");
-        var newValue = split[0];
-        var link = split[1];
-        S6Context.debug("apply link:", filedname, newValue, link);
-        if (carriageReturn) {
-          this._docAdapter.insert(`\n`);
-        }
-        res = this._docAdapter.insert(`${newValue}`, null, link);
-        this._docAdapter.insert(`${title}: `);
-        break;
-    }
-    return res;
-  }
-}
-class PropertyAppFactory_INSERT_FIELD extends PropertyApplyFactory {
-  apply(title, value, filedname, type, color, carriageReturn = false, link = EMPTY) {
-    const LF = carriageReturn ? "\n" : EMPTY;
-    return this._docAdapter.insert(`${filedname}${LF}`, color);
-  }
-}
-class PropertyAppFactory_INSERT_TITLE_FIELD extends PropertyApplyFactory {
-  apply(title, value, filedname, type, color, carriageReturn = false, link = EMPTY) {
-    if (carriageReturn) {
-      this._docAdapter.insert(`\n`);
-    }
-    this._docAdapter.insert(`${filedname}`, color);
-    this._docAdapter.insert(`${title}: `);
-  }
-}
-class PropertyAppFactory_REPLACE_VALUE extends PropertyApplyFactory {
-  apply(title, value, filedname, type, color, carriageReturn = false, link = EMPTY) {
-    var res;
-    value = value + EMPTY;
-    switch (type) {
-      case (APPLY.IMAGE):
-        var file = DriveApp.getFileById(S6Utility.getIdFromUrl(value));
-        var image = file.getBlob();
-        res = this._docAdapter.replaceImage(filedname, image);
-        break;
-      case (APPLY.TEXT):
-        res = this._docAdapter.replace(filedname, value, EMPTY, color);
-        break;
-      case (APPLY.LINK):
-        var split = value.split("|");
-        var newValue = split[0];
-        var link = split[1];
-        res = this._docAdapter.replace(filedname, newValue, link, color);
-        break;
-    }
-    return res;
-  }
-}
-class PropertyAppFactory_REPLACE_TITLE_VALUE extends PropertyApplyFactory {
-  apply(title, value, filedname, type = APPLY.TEXT, color, carriageReturn = false, link = EMPTY) {
-    var res;
-    value = value + EMPTY;
-    switch (type) {
-      case (APPLY.IMAGE):
-        var file = DriveApp.getFileById(S6Utility.getIdFromUrl(value));
-        var image = file.getBlob();
-        res = this._docAdapter.replaceImage(filedname, image);
-        break;
-      case (APPLY.TEXT):
-        res = this._docAdapter.replace(filedname, `${title}: ${value}`, link, color);
-        break;
-      case (APPLY.LINK):
-        var split = value.split("|");
-        var newValue = split[0];
-        link = split[1];
-        S6Context.debug("apply link:", filedname, newValue, link);
-        res = this._docAdapter.replace(filedname, `${title}: ${newValue}`, link, color);
-        break;
-    }
-    return res;
-  }
-}
 

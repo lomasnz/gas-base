@@ -24,11 +24,15 @@ class S6Utility {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
   }
 
-  static getScriptProperty(name) {
-    let res = S6Utility.trim(PropertiesService.getScriptProperties().getProperty(name));
-    S6Context.info("Script property [", name, "] exists[", res != EMPTY, "]");
-    // var e = new Error();
-    // S6Context.error(e.stack,e.message);
+  static getScriptProperty(name, ignoreCcahe = false) {
+    var res = (ignoreCcahe ? EMPTY : S6Cache.userCacheGetString(name));
+    if (!res) {
+      res = S6Utility.trim(PropertiesService.getScriptProperties().getProperty(name));
+      if (!ignoreCcahe) {
+        S6Cache.userCachePutString(name, res);
+      }
+    }
+    console.log("Script property [", name, "] exists[", res != EMPTY, "]");
     return res;
   }
 

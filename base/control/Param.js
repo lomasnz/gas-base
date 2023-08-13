@@ -126,6 +126,7 @@ class Param {
   }
   _addEventValuesToFields(event, fields) {
     S6Context.time("addEventValuesToFields");
+    console.log("addEventValuesToFields fields", fields);
     var res = fields;
     if (event.hasOwnProperty("formInputs") && Object.keys(event.formInputs).length !== 0) {
       for (var i = 0; i < fields.length; i++) {
@@ -147,8 +148,14 @@ class Param {
         else {
           let typeOnly = S6UIService.canonicalType(fields[i].type);
           useNewValue = true;
+          console.log("_addEventValuesToFields", typeOnly);
           switch (typeOnly) {
-            case DATA_TYPE_SLECTED:
+            //  case DATA_TYPE_SELECTOR:
+            //   var selected = (event.formInputs[fields[i].field][0]).trim();
+            //   newValue = fields[i][PROPERTIES.ATTR.SELECTOR_MAP][selected];
+            //   break;
+            case DATA_TYPE_SELECTOR:
+            case DATA_TYPE_SELECTED:
               var fieldSource = fields[i].fieldSource;
               newValue = S6UIService.getSeletecedHelper(fields[i], event.formInputs[fieldSource][0]);
               break;
