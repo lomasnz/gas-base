@@ -39,15 +39,21 @@ class S6Context {
     this.email = Session.getActiveUser().getEmail();
     this.timers = {};
     Object.freeze(this);
+    S6Context.instance = this;
+    Object.freeze(S6Context.instance);
   }
 
   static new(s6actionEventFnName = actionEventDefault.name) {
     return S6Context.newFromName(s6actionEventFnName);
   }
+  static rehidrate(build,actionEvent) {
+    return S6Context.newFromName(actionEvent,build);
+    //return new S6Context(build,actionEvent,"#PRIVATE");
+  }
 
-  static newFromName(name) {
+  static newFromName(name,build = S6Event[name]) {
     //S6UIController.initS6Event();
-    var res = new S6Context(S6Event[name], name, "#PRIVATE");
+    var res = new S6Context(build, name, "#PRIVATE");
     if (!res.build.LogDebug) {
       S6Context.debug = S6Context._noOp;
       S6Context.debugFn = S6Context._noOp;
@@ -116,7 +122,7 @@ class S6Context {
       var userCacheCountBefore = S6Cache.userCacheCount();
       var globalCacheCountBefore = S6Cache.globalCacheCount();
       var eventName = this.email + " in " + param.getHostAppName() + " -> " + this.build.ActionName + "(event) -> " + this.build.ViewBuildFn.name + "(param)";
-      S6Context.debug(`Execute ${this.build.ViewBuildFn.name}`);
+      S6Context.info(`Execute ${this.build.ViewBuildFn.name} for ${ADD_ON_RELEASE}`);
       S6Context.time(eventName);
       res = this.build.ViewBuildFn(param);
       var userCacheCountAfter = S6Cache.userCacheCount();

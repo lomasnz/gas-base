@@ -68,7 +68,7 @@ const EMPTY = "";
 const ICON_APP_SETTINGS_URL = "https://github.com/google/material-design-icons/blob/master/png/action/settings_applications/materialiconsoutlined/48dp/2x/outline_settings_applications_black_48dp.png?raw=true";
 const ICON_QUOTE_URL = "https://github.com/google/material-design-icons/blob/master/png/editor/format_quote/materialiconsoutlined/48dp/2x/outline_format_quote_black_48dp.png?raw=true";
 const ICON_DOUBLE_ARROW_LEFT = "https://github.com/lomasnz/public-resources/blob/main/material-design-icons/keyboard_double_arrow_left.png?raw=true";
-const ICON_GOOGLE_TEAMDRIVE_URL = "https://github.com/lomasnz/public-resources/blob/main/google-workspace-icons/Google%20Drive%20Outline.png";
+const ICON_GOOGLE_TEAMDRIVE_URL = "https://github.com/lomasnz/public-resources/blob/main/material-design-icons/folder.png?raw=true";
 const ICON_POST_ADD_URL = "https://github.com/google/material-design-icons/blob/master/png/editor/post_add/materialiconsoutlined/48dp/2x/outline_post_add_black_48dp.png?raw=true";
 const ICON_SAD_URL = "https://raw.githubusercontent.com/google/material-design-icons/master/png/social/sentiment_dissatisfied/materialiconsoutlined/48dp/2x/outline_sentiment_dissatisfied_black_48dp.png";
 const ICON_OPEN_AI_URL = "https://static-00.iconduck.com/assets.00/openai-icon-505x512-pr6amibw.png";
