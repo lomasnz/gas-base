@@ -1,3 +1,4 @@
+const GLOBAL = this;
 const S6Event = {};
 const S6EventUser = {};
 
@@ -40,30 +41,37 @@ class S6Context {
     this.timers = {};
     Object.freeze(this);
     S6Context.instance = this;
+    S6Context._instance = this;
     Object.freeze(S6Context.instance);
   }
 
-  static new(s6actionEventFnName = actionEventDefault.name) {
-    return S6Context.newFromName(s6actionEventFnName);
+  static new(s6actionEventFnName) {
+    if (!s6actionEventFnName) {
+      s6actionEventFnName = S6Context_default;
+      S6Context.addEvent(S6Context_default);
+    }
+    return S6Context.newFromName(s6actionEventFnName.name);
   }
-  static rehidrate(build,actionEvent) {
-    return S6Context.newFromName(actionEvent,build);
-    //return new S6Context(build,actionEvent,"#PRIVATE");
+  static rehidrate(build, actionEvent) {
+    build.ViewBuildFn = GLOBAL[build.ViewBuildName];
+    build.ActionFn = GLOBAL[build.ActionName];
+    console.log("rehidrate", build, build.ViewBuildFn, build.ActionFn);
+    return S6Context.newFromName(actionEvent, build);
   }
-
-  static newFromName(name,build = S6Event[name]) {
-    //S6UIController.initS6Event();
+  static newFromName(name = S6Context_default.name, build = S6Event[name]) {
     var res = new S6Context(build, name, "#PRIVATE");
-    if (!res.build.LogDebug) {
-      S6Context.debug = S6Context._noOp;
-      S6Context.debugFn = S6Context._noOp;
-    }
-    if (!res.build.LogInfo) {
-      S6Context.info = S6Context._noOp;
-      S6Context.infoFn = S6Context._noOp;
-    }
-    if (!res.build.LogTrace) {
-      S6Context.trace = S6Context._noOp;
+    if (build) {
+      if (!res.build.LogDebug) {
+        S6Context.debug = S6Context._noOp;
+        S6Context.debugFn = S6Context._noOp;
+      }
+      if (!res.build.LogInfo) {
+        S6Context.info = S6Context._noOp;
+        S6Context.infoFn = S6Context._noOp;
+      }
+      if (!res.build.LogTrace) {
+        S6Context.trace = S6Context._noOp;
+      }
     }
     S6Context._instance = res;
     S6Context.debug("S6Context[", res.build, "]");
@@ -72,11 +80,12 @@ class S6Context {
   /**
    * For recording a record in the S6Event  for each action_ build_ pairing, along with configuration (...args)
    */
-  static addEvent(actionFn, viewBuildFn, ...args) {
+  static addEvent(actionFn, viewBuildFn = actionFn, ...args) {
     S6Event[actionFn.name] = {
       ActionFn: actionFn,
       ActionName: actionFn.name,
       ViewBuildFn: viewBuildFn,
+      ViewBuildName: viewBuildFn.name,
       LogInfo: S6EventSettings.LogInfoDefault,
       LogDebug: S6EventSettings.LogDebugDefault,
       LogTrace: S6EventSettings.LogTraceDefault,
@@ -98,6 +107,7 @@ class S6Context {
         }
       }
     }
+    return S6Event[actionFn.name];
   }
   static addUser(userEmail, ...args) {
     S6EventUser[userEmail] = {
@@ -228,4 +238,8 @@ class S6Context {
   static errorFn(fn, ...args) {
     console.error(fn, "(", ...args, ")");
   }
+}
+
+function S6Context_default(event) {
+
 }

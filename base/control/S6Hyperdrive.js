@@ -209,7 +209,7 @@ function doPost(e) {
   console.log(Session.getActiveUser().getEmail());
   const requestData = JSON.parse(e.postData.contents);
   const token = requestData.token;
-  console.log(token);
+  console.log("token",token);
 
   // Verify the token is the same as the one sent in the original Pub/Sub message
   // You can store the sent tokens in a time-limited cache (e.g., using CacheService)
@@ -219,6 +219,8 @@ function doPost(e) {
     const data = requestData.data;
     const s6ContextBuild = data.s6ContextBuild;
     const s6ContextActioneEvent = data.s6ContextActioneEvent;
+    // s6ContextBuild.ViewBuildFn =  this[s6ContextBuild.ViewBuildName];
+    // s6ContextBuild.ActionFn =  this[s6ContextBuild.ActionName];
     
     S6Context.rehidrate(s6ContextBuild, s6ContextActioneEvent);
     S6Utility.initAddOn();
