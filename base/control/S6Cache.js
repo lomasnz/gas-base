@@ -168,16 +168,18 @@ class S6Cache {
   }
 
   static userCachePutString(key, string, priority = CACHE_PRIORITY.HIGH) {
-    return S6Cache._CachePutString(CacheService.getUserCache(), key, string, priority);
+    return S6Cache.userCachePutJson(key, {string : string}, priority);
   }
-
-  static userCacheGetJson(key) {
-    return S6Cache._CacheGetSt(CacheService.getUserCache(), key);
-  }
-
 
   static userCacheGetJson(key) {
     return S6Cache._CacheGetJson(CacheService.getUserCache(), key);
+  }
+
+  static userCacheGetString(key) {
+    const res = S6Cache.userCacheGetJson(key);
+    if (res) {
+      return res.string;
+    }
   }
 
   //

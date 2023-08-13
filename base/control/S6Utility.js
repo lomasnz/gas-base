@@ -20,9 +20,25 @@ class S6Utility {
     return "1.1";
   }
 
+  static escapeRegExp(string = EMPTY) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+  }
+
   static getScriptProperty(name) {
     let res = S6Utility.trim(PropertiesService.getScriptProperties().getProperty(name));
-    S6Context.info("Script property [", name, "] exists[", res != EMPTY , "]");
+    S6Context.info("Script property [", name, "] exists[", res != EMPTY, "]");
+    // var e = new Error();
+    // S6Context.error(e.stack,e.message);
+    return res;
+  }
+
+  static getDomainName() {
+    let res = EMPTY;
+    var url = ScriptApp.getService().getUrl();
+    var match = url.match(/https:\/\/script\.google\.com\/a\/([^\/]*)/);
+    if (match && match[1]) {
+      res = match[1];
+    }
     return res;
   }
 
@@ -30,7 +46,9 @@ class S6Utility {
     // Use a simple mathematical formula to create a unique hash value for the email
     return string.length * 3 + string.charCodeAt(0);
   }
-
+  /***
+   * does not work
+   */
   static simple2WayUnhash(hash) {
     // Use the inverse of the hash function to retrieve the original string
     const length = (hashedEmail - 1) / 3;
@@ -136,7 +154,7 @@ class S6Utility {
       masterURL = S6Utility.getScriptProperty("master.properties.spreadsheet");// "https://docs.google.com/spreadsheets/d/1fVWACDuta9KMSVUaQxosTUswX4zLdPn8WP6hOHwXubU/edit";
       userProperties.setProperty(USER_PROPERTY_MASTER_URL, masterURL);
     }
- 
+
   }
   static getMasterSpreadSheetUrl() {
     return PropertiesService.getUserProperties().getProperty(USER_PROPERTY_MASTER_URL);

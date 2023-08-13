@@ -93,19 +93,19 @@ const MARKDOWN_TO_DOCUMENT = {
 };
 
 const DOCUMENT_FORMAT_TO_MARKEDOWN = {
-  [DocumentApp.ParagraphHeading.HEADING1]: "\n# ",
-  [DocumentApp.ParagraphHeading.HEADING2]: "\n## ",
-  [DocumentApp.ParagraphHeading.HEADING3]: "\n### ",
-  [DocumentApp.ParagraphHeading.HEADING4]: "\n#### ",
-  [DocumentApp.ParagraphHeading.HEADING5]: "\n##### ",
-  [DocumentApp.ParagraphHeading.HEADING6]: "\n###### ",
-  [DocumentApp.ParagraphHeading.NORMAL]: "\n",
-  [DocumentApp.GlyphType.BULLET]: "\n* ",
-  [DocumentApp.GlyphType.NUMBER]: "\n1. ",
-  [DocumentApp.GlyphType.LATIN_LOWER]: "\na ",
-  [DocumentApp.GlyphType.LATIN_UPPER]: "\nA ",
-  [DocumentApp.GlyphType.ROMAN_LOWER]: "\ni ",
-  [DocumentApp.GlyphType.ROMAN_LOWER]: "\nI ",
+  [DocumentApp.ParagraphHeading.HEADING1]: "# ",
+  [DocumentApp.ParagraphHeading.HEADING2]: "## ",
+  [DocumentApp.ParagraphHeading.HEADING3]: "### ",
+  [DocumentApp.ParagraphHeading.HEADING4]: "#### ",
+  [DocumentApp.ParagraphHeading.HEADING5]: "##### ",
+  [DocumentApp.ParagraphHeading.HEADING6]: "###### ",
+  [DocumentApp.ParagraphHeading.NORMAL]: "",
+  [DocumentApp.GlyphType.BULLET]: "* ",
+  [DocumentApp.GlyphType.NUMBER]: "1. ",
+  [DocumentApp.GlyphType.LATIN_LOWER]: "a ",
+  [DocumentApp.GlyphType.LATIN_UPPER]: "A ",
+  [DocumentApp.GlyphType.ROMAN_LOWER]: "i ",
+  [DocumentApp.GlyphType.ROMAN_LOWER]: "I ",
   [DocumentApp.Attribute.BOLD]: ""
 };
 
@@ -306,6 +306,50 @@ class S6DocsAdapater extends S6DocumentAdapater {
       asText.setAttributes(startIndex, endIndex, attributes);
     }
   }
+  _getElementToInsertAfter(searchText, body) {
+    console.log("_getElementToInsertAfter", searchText, searchText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    var searchResult = body.findText(searchText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    var targetParent = null;
+    var targetIndex = null;
+    var asText = null;
+
+    if (searchResult) {
+      var element = searchResult.getElement();
+      var parent = element.getParent();
+      var elementType = parent.getType();
+
+      if (elementType === DocumentApp.ElementType.PARAGRAPH) {
+        var paragraph = parent.asParagraph();
+        var sibling = paragraph.getNextSibling();
+        targetParent = paragraph.getParent();
+        targetIndex = targetParent.getChildIndex(sibling || paragraph);
+        asText = paragraph.editAsText();
+      }
+      else if (elementType === DocumentApp.ElementType.LIST_ITEM) {
+        var listItem = parent.asListItem();
+        var sibling = listItem.getNextSibling();
+        targetParent = listItem.getParent();
+        targetIndex = targetParent.getChildIndex(sibling || listItem) + 1;
+        asText = listItem.editAsText();
+      }
+      else if (elementType === DocumentApp.ElementType.TABLE_CELL) {
+        var tableCell = parent.asTableCell();
+        asText = tableCell.editAsText();
+        targetParent = tableCell;
+        targetIndex = tableCell.getNumChildren();
+      }
+      else {
+        // Unsupported element type
+        console.log("Unsupported element type: " + elementType);
+      }
+    }
+    else {
+      console.log("Text not found in the document.");
+    }
+    console.log(`Found Element type: ${elementType}`);
+    return { parent: targetParent, index: targetIndex, asText: asText };
+  }
+
 
   mergeMarkdown(text, body, childIndex = 0, markdown, color, listItemNumber = EMPTY) {
     let newElement = null;
@@ -324,7 +368,9 @@ class S6DocsAdapater extends S6DocumentAdapater {
         newElement.editAsText().setText(text);
         newElement.setAttributes(this._getAttributes(markdown));
         this._formatText(newElement.editAsText());
-        newElement.setBackgroundColor(color);
+        if (color) {
+          newElement.setBackgroundColor(color);
+        };
         break;
       case "-":
       case "*":
@@ -342,11 +388,13 @@ class S6DocsAdapater extends S6DocumentAdapater {
         console.log("insertListItem, markdown, text, glyph", markdown, text, MARKDOWN_TO_DOCUMENT_GLYPH_TYPES_PRINTABLE[markdown]);
         newElement.setGlyphType(glyph);
         this._formatText(newElement.editAsText());
-        newElement.setBackgroundColor(color);
+        if (color) {
+          newElement.setBackgroundColor(color);
+        }
         break;
       default:
-        newElement = body.insertParagraph(childIndex, "");
-        newElement.setAttributes(DocumentApp.ParagraphHeading.NORMAL);
+        // newElement = body.insertParagraph(childIndex, "");
+        // newElement.setAttributes(DocumentApp.ParagraphHeading.NORMAL);
         console.error('Unknown element markedown: ', markdown, text);
     }
   }
@@ -354,7 +402,8 @@ class S6DocsAdapater extends S6DocumentAdapater {
   _getAttributes(markdown) {
     if (markdown in MARKDOWN_TO_DOCUMENT) {
       return MARKDOWN_TO_DOCUMENT[markdown];
-    } else {
+    }
+    else {
       return {};
     }
   }
@@ -450,24 +499,45 @@ class S6DocsAdapater extends S6DocumentAdapater {
     return text;
   }
 
+  parseTextInPlace(replace, text, color = null) {
+    const body = this._doc.getBody();
+    const after = this._getElementToInsertAfter(replace, body)
+
+    const lines = text.split("\n");
+
+    for (let i = lines.length - 1; i >= 0; i--) {
+      let item = lines[i].trim();
+      if (item === "") {
+        //this.mergeMarkdown("", after.parent, after.index, "P", color);
+      }
+      else {
+        var { key, line, listItemNumber } = this.getReadyToInsert(item);
+        this.mergeMarkdown(line, after.parent, after.index, key, color, listItemNumber);
+      }
+    }
+    this.replace(replace, EMPTY);
+    this.unselect();
+  }
 
 
   parseText2Document(text, replaceSelected = true, color = null) {
     const lines = text.split("\n");
 
-    var { childIndex, body } = this._findSelectedElementLocation(this._doc, replaceSelected);
+    var { location, childIndex } = this._findSelectedElementLocation2(this._doc);
 
     for (let i = lines.length - 1; i >= 0; i--) {
       let item = lines[i].trim();
-      if (item === "") {
-        this.mergeMarkdown("", body, childIndex, "P", color);
+      if (item === EMPTY) {
+        //this.mergeMarkdown("", body, childIndex, "P", color);
       }
       else {
         var { key, line, listItemNumber } = this.getReadyToInsert(item);
-        this.mergeMarkdown(line, body, childIndex, key, color, listItemNumber);
+        if (line.trim() != EMPTY) {
+          this.mergeMarkdown(line, location, childIndex + 1, key, color, listItemNumber);
+        }
       }
-
     }
+    this.unselect();
 
   }
 
@@ -480,7 +550,7 @@ class S6DocsAdapater extends S6DocumentAdapater {
       S6Context.debugFn("Attribute", DOCUMENT_FORMAT_TO_MARKEDOWN[attrs[DocumentApp.Attribute.GLYPH_TYPE]]);
       markup = DOCUMENT_FORMAT_TO_MARKEDOWN[attrs[DocumentApp.Attribute.GLYPH_TYPE]];
       if (attrs[DocumentApp.Attribute.GLYPH_TYPE] === DocumentApp.GlyphType.NUMBER) {
-        markup = `\n${nextNumberItem++}. `;
+        markup = `${nextNumberItem++}. `;
       }
     }
     else if (element.getType() === DocumentApp.ElementType.PARAGRAPH) {
@@ -594,48 +664,162 @@ class S6DocsAdapater extends S6DocumentAdapater {
    */
   _findSelectedElementLocation(doc, replaceSelected = true) {
     let keepText = replaceSelected == false;
-    let childIndex = -1; //initialize res variable
-    var element; //initialize element variable
-    let body = doc.getBody(); // assign the body of the doc to the body variable
+    let childIndex = -1;
+    var element;
+    let body = doc.getBody();
+    console.log("Started _findSelectedElementLocation function...");
+    var location; // initialize location variable
+
     try {
-      //if (!postion) { // if there is no cursor position
-      var range = doc.getSelection(); // select the range
+      var range = doc.getSelection();
+      if (!range) throw new Error("No selection range found");
+      console.log("Range selected...");
+
       var rangeElements = range.getRangeElements();
-      var rangeElement = rangeElements[0]; // select the first range element
-      if (rangeElement) {
-        element = rangeElement.getElement(); // assign the element to the element variable
-        if (rangeElement.isPartial()) {
-          if (replaceSelected && element.asText) {
-            replaceSelected = false;
-            S6Context.debugFn("_findSelectedElementLocation2", "delete text", "type", DOCUMENT_ELEMENT_TYPES[element.getType()] || "UNKNOWN",
-              "start,end", rangeElement.getStartOffset(), rangeElement.getEndOffsetInclusive());
-            element.asText().deleteText(rangeElement.getStartOffset(), rangeElement.getEndOffsetInclusive());
-          }
+      var rangeElement = rangeElements[0];
+      if (!rangeElement) throw new Error("No range element found");
+      console.log("First range element selected...");
+
+      element = rangeElement.getElement();
+      console.log("Element assigned...");
+
+      if (rangeElement.isPartial()) {
+        console.log("Range element is partial...");
+        if (replaceSelected && element.asText) {
+          console.log("Deleting selected text...");
+          replaceSelected = false;
+          element.asText().deleteText(rangeElement.getStartOffset(), rangeElement.getEndOffsetInclusive());
         }
       }
-      if (replaceSelected) {
+      if (element.getType() == DocumentApp.ElementType.TABLE_CELL) {
+        console.log("Element is a Table Cell...");
+        location = element; // assign the table cell to the location
+        let tableRow = element.getParent();
+        let table = tableRow.getParent();
+        childIndex = body.getChildIndex(table);
+        console.log("Table Index in the body: ", childIndex);
+      } else {
+        location = body; // if not a table cell, location is the body
+      }
+      if (replaceSelected && element.getType() != DocumentApp.ElementType.TABLE_CELL) {
+        console.log("Finding selected child index and removing elements...");
         childIndex = this._findSelectedChildIndex(rangeElements, doc, body, false);
         for (let r = 0; r < rangeElements.length; r++) {
           const nextElement = rangeElements[r].getElement();
+          console.log("Removing element ", r);
           nextElement.removeFromParent();
         }
       }
       if (keepText) {
+        console.log("Keeping text and finding selected child index...");
         if (rangeElements) {
           childIndex = this._findSelectedChildIndex(rangeElements, doc, body, true);
         }
-
       }
     }
     catch (err) {
-      S6Context.error(err.stack);
-      S6Context.error(err);
+      console.error("Error: ", err.message);
     }
     childIndex = childIndex == -1 ? 0 : childIndex;
-
-    S6Context.debugFn("_findSelectedElementLocation2", "childIndex", childIndex);
-    return { childIndex, body }; // return an object containing the child index and the body element
+    console.log("Final child index: ", childIndex);
+    return { childIndex, location }; // return an object containing the child index and the location
   }
+
+  unselect() {
+    var doc = this._doc;
+    var range = doc.getSelection();
+
+    // If there's no selection, there's nothing to unselect
+    if (!range) return;
+
+    var rangeElements = range.getRangeElements();
+    var rangeElement = rangeElements[rangeElements.length - 1];
+
+    // If the range is not partial, the whole element is selected and we can just use it
+    var element = rangeElement.isPartial() ? rangeElement.getElement().asText() : rangeElement.getElement().editAsText();
+    var endOffset = rangeElement.getEndOffsetInclusive(); // get end offset of selection
+
+    // Insert a space at the end of the selection, move the cursor to the space, then delete the space
+    element.insertText(endOffset + 1, " ");
+    var rangeBuilder = doc.newRange();
+    rangeBuilder.addElement(element, endOffset + 1, endOffset + 1);
+    doc.setSelection(rangeBuilder.build());
+    element.deleteText(endOffset + 1, endOffset + 1);
+  }
+
+  _findSelectedElementLocation2(doc) {
+    console.log("_findSelectedElementLocation2");
+
+    // Open the document
+    var body = doc.getBody();
+    console.log("Document opened and body retrieved");
+
+    // Initialize variables
+    var childIndex = -1;
+    var element;
+    var location;
+
+    try {
+      console.log("Attempting to get the selected range...");
+
+      // Attempt to get the selected range
+      var range = doc.getSelection();
+      if (!range) throw new Error("No selection range found");
+
+      console.log("Range found. Getting the first range element...");
+
+      // Get the first range element
+      var rangeElements = range.getRangeElements();
+      var rangeElement = rangeElements[rangeElements.length - 1];
+      if (!rangeElement) throw new Error("No range element found");
+
+      console.log("Range element found. Getting the selected element...");
+
+      // Get the selected element
+      element = rangeElement.getElement();
+
+      console.log("Selected element found. Checking if the element is a table cell...");
+
+      // Traverse up the parent hierarchy until we either find a table cell or reach the body
+      var parent = element.getParent();
+      while (parent && parent.getType() != DocumentApp.ElementType.TABLE_CELL && parent.getType() != DocumentApp.ElementType.BODY_SECTION) {
+        element = parent;
+        parent = element.getParent();
+      }
+
+      // Check if we found a table cell
+      if (parent.getType() == DocumentApp.ElementType.TABLE_CELL) {
+        console.log("Element is a table cell.");
+        location = parent; // Assign the table cell to the location
+        // let tableRow = location.getParent();
+        // let table = tableRow.getParent();
+        childIndex = parent.getChildIndex(element);
+        console.log("Table index in the body: " + childIndex);
+      } else {
+        console.log("Element is not a table cell. Location is the body.");
+        location = body; // If not a table cell, location is the body
+        childIndex = body.getChildIndex(element);
+        console.log("Element index in the body: " + childIndex, rangeElement.isPartial());
+
+        // Check if the element has a next sibling
+        if (parent.getNumChildren() > childIndex + 1) {
+          childIndex = childIndex + 1;
+          console.log("Next sibling element index in the body: " + childIndex);
+        } else {
+          console.log("No next sibling found in the body for the selected element");
+        }
+      }
+    }
+    catch (err) {
+      console.error("Error: ", err.message);
+    }
+
+    // Return an object containing the child index and the location
+    console.log("Returning child index and location...");
+    return { childIndex, location };
+  }
+
+
 
   /**
  * Finds the child index of the first BODY_SECTION element in a range of elements.
@@ -658,7 +842,8 @@ class S6DocsAdapater extends S6DocumentAdapater {
     for (let r = start; r !== end; r += step) {
       const nextElement = rangeElements[r].getElement();
       S6Context.debugFn("_findSelectedElementLocation 1 e", DOCUMENT_ELEMENT_TYPES[nextElement.getType()]);
-      if (nextElement.getType() == DocumentApp.ElementType.BODY_SECTION) {
+      if (nextElement.getType() == DocumentApp.ElementType.BODY_SECTION ||
+        nextElement.getType() == DocumentApp.ElementType.TABLE_CELL) {
         // If a BODY_SECTION element is found, set the cursor position and calculate the child index
         var pos = doc.newPosition(nextElement, 0);
         doc.setCursor(pos);
@@ -702,6 +887,7 @@ class S6DocsAdapater extends S6DocumentAdapater {
     var res = true;
 
     try {
+
       var { childIndex, body } = this._findSelectedElementLocation(doc);
       S6Context.debug("applyBoilerplate at:", childIndex);
 
@@ -749,6 +935,7 @@ class S6DocsAdapater extends S6DocumentAdapater {
       S6Context.debug("skip _loopElements, no parent");
     }
   }
+
   _mergeElements(element, base, childIndex = 0) {
 
     var type = element.getType();
@@ -879,17 +1066,16 @@ class S6DocsAdapater extends S6DocumentAdapater {
     // let's loop through all the child elements in the document
     for (var i = 0; i < p.getNumChildren(); i++) {
       var t = p.getChild(i).getType();
-      var item;
       if (t === DocumentApp.ElementType.BODY_SECTION) {
         this._findReplaceAndLink(p.getChild(i).asBody(), thisText, withThatText, link, color);
       }
       if (t === DocumentApp.ElementType.HEADER_SECTION) {
         this._findReplaceAndLink(p.getChild(i).asHeaderSection(), thisText, withThatText, link, color);
-        p.getChild(i).asHeaderSection().replaceText(thisText, withThatText);
+        p.getChild(i).asHeaderSection().replaceText(S6Utility.escapeRegExp(thisText), withThatText);
       }
       else if (t === DocumentApp.ElementType.FOOTER_SECTION) {
         this._findReplaceAndLink(p.getChild(i).asFooterSection(), thisText, withThatText, link, color);
-        p.getChild(i).asFooterSection().replaceText(thisText, withThatText);
+        p.getChild(i).asFooterSection().replaceText(S6Utility.escapeRegExp(thisText), withThatText);
       }
 
     }
@@ -902,8 +1088,7 @@ class S6DocsAdapater extends S6DocumentAdapater {
    * @param {strin} link - url
    */
   _findReplaceAndLink(item, thisText, withThatText, link = EMPTY, color) {
-    var res;
-    var foundElement = item.findText(thisText);
+    var foundElement = item.findText(S6Utility.escapeRegExp(thisText));
     while (foundElement != null) {
       // Get the text object from the element
       var foundText = foundElement.getElement().asText();
@@ -932,7 +1117,7 @@ class S6DocsAdapater extends S6DocumentAdapater {
         foundText.deleteText(start, end);
       }
       // Find the next match
-      foundElement = item.findText(thisText);// , foundElement);
+      foundElement = item.findText(S6Utility.escapeRegExp(thisText));// , foundElement);
     }
   }
 
@@ -961,7 +1146,7 @@ class S6DocsAdapater extends S6DocumentAdapater {
       this.insert("\n");
     }
   }
-  insert(thisText, color = null, link = EMPTY) {
+  insert(thisText, color = null, link = EMPTY, del = true) {
     var res = false;
     var cursor = this._doc.getCursor();
     if (cursor) {
@@ -971,8 +1156,9 @@ class S6DocsAdapater extends S6DocumentAdapater {
 
       S6Context.time("Insert:" + thisText);
       var text = cursor.insertText(thisText);
-
-      text.setBackgroundColor(color);
+      if (color) {
+        text.setBackgroundColor(color);
+      }
 
       if (text && link != EMPTY) {
         text.setLinkUrl(0, thisText.length - 1, link);
@@ -985,10 +1171,20 @@ class S6DocsAdapater extends S6DocumentAdapater {
       var sel = this._doc.getSelection();
       if (sel) {
         var es = sel.getRangeElements();
-        for (let i = 0; i < es.length; i++) {
-          S6Context.time("Delete Insert:" + thisText);
-          res = this._deleteAndInsert(es[i], thisText, 0, 0, false, color, link);
-          S6Context.timeEnd("Delete Insert:" + thisText);
+        if (del) {
+          for (let i = 0; i < es.length; i++) {
+            S6Context.time("Delete Insert:" + thisText);
+            res = this._deleteAndInsert(es[i], thisText, 0, 0, false, color, link);
+            S6Context.timeEnd("Delete Insert:" + thisText);
+          }
+        }
+        else {
+          var re = es[es.length - 1];
+          var pos = re.isPartial() ? re.getEndOffsetInclusive() : 0;
+          var text = re.getElement().editAsText().insertText(pos, thisText);
+          if (color) {
+            text.setBackgroundColor(color);
+          }
         }
       }
       else {
@@ -1120,7 +1316,7 @@ class S6DocsAdapater extends S6DocumentAdapater {
       if (newRange) {
         var next = S6Utility.trim(newRange.getElement().asText().getText());
         console.log("NEXT", next);
-        this._splitOutPropos(res, next);
+        this._splitOutProps(res, next);
         // if (next != EMPTY && next.indexOf("#") < 0) {
         //   this._splitOutPropos(res[PROPERTIES.AUTOMATIC], next);
         //   //res[PROPOERTIES.AUTOMATIC][next] = next.substring(1, next.length - 1);
@@ -1134,7 +1330,7 @@ class S6DocsAdapater extends S6DocumentAdapater {
     }
   }
 
-  _splitOutPropos(props, text) {
+  _splitOutProps(props, text) {
     var split = text.split("{");
     for (var i = 0; i < split.length; i++) {
       var end = split[i].indexOf("}");
