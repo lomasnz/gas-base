@@ -1113,6 +1113,13 @@ class S6Utility {
     const element = xmlDocument.getRootElement();
     return S6Utility.xmlElementToJson(element)
   }
+
+  static replaceBrWithNewline(str) {
+    if (str === null || str === undefined) {
+      return EMPTY;
+    }
+    return str.replace(/<br\s*\/?>/gi, '\n');
+  }
   static xmlElementToJson(element) {
     var result = {};
     // Attributes.

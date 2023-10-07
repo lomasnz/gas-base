@@ -20,7 +20,7 @@ const DATA_TYPE_SELECTED = "selected";
 const DATA_TYPE_LINK = "link";
 const DATA_TYPE_SWITCH = "switch"
 const DATA_TYPE_NUMBER = "number"
-
+ 
 const TEXT_ID_FOLDER = "📁";
 const TEXT_ID_SUBFOLDER = "➕📁";
 const TEXT_STICKY_BLANK = "󠀠󠀠󠀠󠀠󠀠󠀠 ";
@@ -287,11 +287,11 @@ class S6UIService {
         res = S6UIService.createChoiceInput(title, hint, value, params.choices);
         break;
       default:
-        S6Context.error(`Invlaid type createInputForType(...${type})`);
+        S6Context.error(`Invlaid type createInputForType(fieldName:${fieldName},type:${type},title:${title})`);
         break;
 
     }
-    if (res.setFieldName) {
+    if (res && res.setFieldName) {
       res.setFieldName(fieldName);
     }
     return res;
@@ -1027,7 +1027,7 @@ class S6UIService {
     }
     for (let i = 0; i < list.length; i = i + 2) {
       //S6Context.debug("Add SelectionInput", list[i], list[i + 1]);
-      res.addItem(list[i], list[i + 1], list[i + 1] == value);
+      res.addItem(list[i], list[i + 1], list[i + 1] === value || i === 0);
     }
     if (title) {
       // if (hint) {

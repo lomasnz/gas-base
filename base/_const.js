@@ -8,7 +8,7 @@ const TRUE = "true";
 const FALSE = "false";
 
 const EMPTY = "";
-//var _ = LodashGS.load();
+var _ = LodashGS.load();
 /**
  * CONSTANTS 
  */
