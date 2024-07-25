@@ -193,7 +193,7 @@ class S6UIService {
   static createInputFromField(field, params = null, onChangeAction = null) {
     return S6UIService.createInputForType(field.field, field.title, field.type, field.hint, field.value, params, onChangeAction);
   }
-
+ 
   /**
    *    
    */
@@ -368,7 +368,12 @@ class S6UIService {
       //res.setHint(hint);
     }
     if (S6Utility.trim(value) != EMPTY) {
+      //console.error("setValueInMsSinceEpoch",value,Date.parse(value));
       res.setValueInMsSinceEpoch(Date.parse(value));
+    }
+    else {
+      //console.error("setValueInMsSinceEpoch Not set");
+      res.setValueInMsSinceEpoch(Date.parse(new Date()));
     }
     return res;
   }
@@ -379,8 +384,8 @@ class S6UIService {
     res.setWrapText(true);
 
     if (S6Utility.trim(iconUrl) != EMPTY) {
-      //res.setStartIcon(makeIcon(iconUrl));
-      res.setIconUrl(iconUrl);
+      res.setStartIcon(makeIcon(iconUrl));
+      //res.setIconUrl(iconUrl);
     }
 
     return res;
@@ -405,7 +410,7 @@ class S6UIService {
     res.setWrapText(true);
 
     if (S6Utility.trim(iconUrl) != EMPTY) {
-      res.setIconUrl(iconUrl);
+      res.setStartIcon(makeIcon(iconUrl));
     }
     if (S6Utility.trim(actionFunctionName) == EMPTY && param && param.hasOwnProperty("notify")) {
       actionFunctionName = "S6UIService_actionNotify";
@@ -470,7 +475,8 @@ class S6UIService {
     res.setText(`<b>${title}</b> : ${value}`);
     res.setWrapText(true);
     if (iconUrl) {
-      res.setIconUrl(iconUrl);
+      res.setStartIcon(makeIcon(iconUrl));
+      //res.setIconUrl(iconUrl);
     }
     return res;
   }
@@ -509,7 +515,8 @@ class S6UIService {
     }
     else {
       res = CardService.newDecoratedText()
-        .setIconUrl(S6Utility.getIconUrlForFile(file))
+        .setStartIcon(S6Utility.getIconUrlForFile(file))
+       // .setIconUrl(S6Utility.getIconUrlForFile(file))
         .setText("Can not create a thumbnail for this type of file.")
         .setWrapText(true);
 
@@ -779,7 +786,8 @@ class S6UIService {
     var res = CardService.newDecoratedText();
 
     res.setText(title);
-    res.setIconUrl(iconUrl);
+    res.setStartIcon(iconUrl);
+    //res.Url(iconUrl);
     if (functionName != null) {
       res.setOnClickAction(CardService.newAction().setFunctionName(functionName).setParameters(param));
     }
@@ -799,7 +807,11 @@ class S6UIService {
       param = {};
     }
     var res = S6UIService.createTextButton(title, PRIMARY_COLOUR, functionName, param);
-    res.setTextButtonStyle(CardService.TextButtonStyle.FILLED); // required for fixed fotter 
+    //! This next line commnted out as its started throwing an error, after working for 2 years!
+    // I expect. Google has change something as they have been making changes in this area but without any notification
+    // It was throwing Unexpected error while getting the method or property setTextButtonStyle on object CardService.TextButton.
+    // Commentin it outr appears to have no bad effect. In that it may not be required any more. 
+    //res.setTextButtonStyle(CardService.TextButtonStyle.FILLED); // required for fixed fotter 
     return res;
   }
   static createCancelButton(title, functionName = EMPTY, param) {
@@ -808,7 +820,11 @@ class S6UIService {
       param = {};
     }
     var res = S6UIService.createTextButton(title, CANCEL_COLOUR, functionName, param);
-    res.setTextButtonStyle(CardService.TextButtonStyle.TEXT);  // required for fixed fotter 
+    //! This next line commnted out as its started throwing an error, after working for 2 years!
+    // I expect. Google has change something as they have been making changes in this area but without any notification
+    // It was throwing Unexpected error while getting the method or property setTextButtonStyle on object CardService.TextButton.
+    // Commentin it outr appears to have no bad effect. In that it may not be required any more. 
+    //res.setTextButtonStyle(CardService.TextButtonStyle.TEXT);  // required for fixed fotter 
     return res;
   }
   static createButtonSet(createButton, cancelButton) {
@@ -1111,7 +1127,8 @@ class S6UIService {
 
   static createImagePropertyChoice(imageUrl, text, hint) {
     var res = S6UIService._createDecoratedText();
-    res.setIconUrl(imageUrl);
+    //res.setIconUrl(imageUrl);
+    res.setStartIcon(makeIcon(imageUrl));
     res.setText(text);
     res.setBottomLabel(hint);
     res.setEndIcon(makeIcon(ICON_DOUBLE_ARROW_LEFT));
@@ -1177,9 +1194,10 @@ class S6UIService {
     else {
       S6Context.warn("Creating a Card without a title will mean it has no Header");
     }
-
+ 
     if (S6Utility.trim(name) != EMPTY) {
       res.setName(name);
+      console.log("Card name:" + name);
     }
 
     if (S6Utility.trim(functionName) != EMPTY) {

@@ -72,7 +72,7 @@ const ICON_GOOGLE_TEAMDRIVE_URL = "https://github.com/lomasnz/public-resources/b
 const ICON_POST_ADD_URL = "https://github.com/google/material-design-icons/blob/master/png/editor/post_add/materialiconsoutlined/48dp/2x/outline_post_add_black_48dp.png?raw=true";
 const ICON_SAD_URL = "https://raw.githubusercontent.com/google/material-design-icons/master/png/social/sentiment_dissatisfied/materialiconsoutlined/48dp/2x/outline_sentiment_dissatisfied_black_48dp.png";
 const ICON_OPEN_AI_URL = "https://static-00.iconduck.com/assets.00/openai-icon-505x512-pr6amibw.png";
-const ICON_S6_URL = "https://lh3.googleusercontent.com/-BA_sFlZaD40/YtjskUmaleI/AAAAAAAAAqg/2RvA2UkhG6ElCiTKVMZ0fySOKXmjQSFwQCNcBGAsYHQ/s400/32%2Bx%2B32%2Bhopferly-02.png";
+const ICON_S6_URL = "https://github.com/lomasnz/public-resources/blob/main/misc-icons/warpdriv5.png?raw=true";
 const ICON_CREATE_URL = "https://github.com/google/material-design-icons/blob/master/png/content/add_circle_outline/materialiconsoutlined/48dp/1x/outline_add_circle_outline_black_48dp.png?raw=true";
 const ICON_BRUSH_URL = "https://github.com/google/material-design-icons/blob/master/png/image/brush/materialiconsoutlined/48dp/2x/outline_brush_black_48dp.png?raw=true";
 const ICON_INFO_URL = "https://raw.githubusercontent.com/google/material-design-icons/master/png/action/info/materialiconsoutlined/48dp/1x/outline_info_black_48dp.png?raw=true";
@@ -144,6 +144,7 @@ const ICON_GOOGLE_SPREADSHEET_URL = "https://github.com/lomasnz/public-resources
 const ICON_GOOGLE_FORM_URL = "https://github.com/lomasnz/public-resources/blob/main/google-workspace-icons/form.png?raw=true";
 const ICON_DRIVE_FOLDER = "https://github.com/lomasnz/public-resources/blob/main/google-workspace-icons/Google-Drive-Folder.webp?raw=true";
 const ICON_ATLASSIAN_URL = "https://www.google.com/s2/favicons?domain_url=atlassian.com";
+const ICON_NOTION_URL = "https://github.com/lomasnz/public-resources/blob/main/misc-icons/notion-icon.png?raw=true";
 
 const PRIMARY_COLOUR = "#61166d";
 const SECONDARY_COLOUR = "#4185f4";

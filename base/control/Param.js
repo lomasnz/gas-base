@@ -23,6 +23,8 @@ const PARAM = {
   EDIT_TYPE: "EDIT_TYPE",
   IS_FOLDER: "IS_FOLDER",
   FILE_ID: "FILE_ID",
+  CURRENT_PAGE : "CURRENT_PAGE",
+  PAGE_DIRECTION : "PAGE_DIRECTION",
   HostApps: {
     GmailApp: "GMAIL",
     "GMAIL": "Gmail",

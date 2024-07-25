@@ -387,8 +387,8 @@ class S6Utility {
    * @param {string} object to obtain a string from and trim
    * @return {string} trimed string 
    */
-  static trim(toTrim = EMPTY) {
-    let res = EMPTY;
+  static trim(toTrim = EMPTY,def = EMPTY) {
+    let res = def;
     // S6Context.debugFn(S6Utility.trim,toTrim);
     if (toTrim && toTrim != EMPTY) {
       res = (toTrim + EMPTY).trim();
